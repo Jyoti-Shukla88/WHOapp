@@ -18,7 +18,6 @@ import {
   filterBySegment,
 } from '../features/countriesSlice';
 import Icon from 'react-native-vector-icons/Ionicons';
-import BottomNav from '../component/BottomNav';
 import AlphabetSegmentBar from '../component/AlphabetSegmentBar'; 
 
 const { width, height } = Dimensions.get('window');
@@ -151,8 +150,6 @@ export default function CountriesListScreen({ navigation }) {
         selectedSegment={selectedSegment}
         onSegmentPress={onSegmentPress}
       />
-
-      <BottomNav />
     </ImageBackground>
   );
 }

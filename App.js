@@ -37,12 +37,9 @@ function StartupWrapper() {
           Update Required!{"\n"}
           Current: {currentVersion} | Latest: {remoteVersion}
         </Text>
-        {/* You can add a button to redirect user to Play Store/App Store */}
       </View>
     );
   }
-
-  // If up-to-date, render normal navigation
   return <AppNavigator />;
 }
 
