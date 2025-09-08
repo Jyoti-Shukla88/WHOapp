@@ -19,7 +19,7 @@ import {
 } from '../features/countriesSlice';
 import Icon from 'react-native-vector-icons/Ionicons';
 import BottomNav from '../component/BottomNav';
-import AlphabetSegmentBar from '../component/AlphabetSegmentBar'; // ✅ imported
+import AlphabetSegmentBar from '../component/AlphabetSegmentBar'; 
 
 const { width, height } = Dimensions.get('window');
 const SEGMENTS = ['A...C', 'D...J', 'K...Q', 'R...Z'];
@@ -42,7 +42,7 @@ const RenderCountryItem = memo(({ item, index, navigation }) => {
         <Image source={getFlagUrl(item.flag)} style={styles.flag} />
         <Text style={styles.name}>{item.name}</Text>
       </View>
-      <Icon name="chevron-forward" size={20} color="#888" />
+      <Icon name="chevron-forward" size={20} color="#353434ff" />
     </TouchableOpacity>
   );
 });
@@ -52,7 +52,7 @@ export default function CountriesListScreen({ navigation }) {
   const { groupedCountries, loading, search, error } = useSelector(
     state => state.countries,
   );
-  const [selectedSegment, setSelectedSegment] = useState('R...Z');
+  const [selectedSegment, setSelectedSegment] = useState('');
 
   useEffect(() => {
     dispatch(fetchCountriesRequest());
@@ -77,7 +77,9 @@ export default function CountriesListScreen({ navigation }) {
 
   const renderSectionHeader = useCallback(
     ({ section: { title } }) => (
-      <Text style={styles.sectionHeader}>{title}</Text>
+      <View style={styles.sectionHeaderContainer}>
+        <Text style={styles.sectionHeader}>{title}</Text>
+      </View>
     ),
     [],
   );
@@ -116,8 +118,8 @@ export default function CountriesListScreen({ navigation }) {
           value={search}
           onChangeText={onSearch}
           placeholder="Search"
-          style={[styles.searchInput, { color: '#fff' }]}
-          placeholderTextColor="#eee"
+          style={[styles.searchInput]}
+          placeholderTextColor="#fff"
         />
       </View>
 
@@ -135,10 +137,10 @@ export default function CountriesListScreen({ navigation }) {
           )}
           renderSectionHeader={renderSectionHeader}
           stickySectionHeadersEnabled
-          initialNumToRender={20} // performance
-          maxToRenderPerBatch={20} // performance
-          windowSize={21} // performance
-          removeClippedSubviews={true} // performance
+          initialNumToRender={20} 
+          maxToRenderPerBatch={20} 
+          windowSize={21} 
+          removeClippedSubviews={true} 
           contentContainerStyle={{ paddingBottom: 160 }}
         />
       </View>
@@ -155,7 +157,6 @@ export default function CountriesListScreen({ navigation }) {
   );
 }
 
-// --- styles remain unchanged ---
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
   },
   backButton: { marginRight: 10 },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 25,
     fontWeight: '700',
     color: '#fff',
     flex: 1,
@@ -182,17 +183,15 @@ const styles = StyleSheet.create({
   searchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     marginHorizontal: 16,
-    marginBottom: 10,
-    borderRadius: 24,
-    paddingHorizontal: 12,
-    height: 44,
-    borderWidth: 1,
-    borderColor: '#ffffff51',
+    marginBottom: 12,
+    borderRadius: 30,
+    height: 48,
+   
   },
-  searchIcon: { width: 18, height: 18, marginRight: 6, tintColor: '#fff' },
-  searchInput: { flex: 1, fontSize: 16 },
+  searchIcon: { width: 18, height: 18, marginLeft: 9, tintColor: '#fff' },
+  searchInput: { flex: 1, fontSize: 16, color: '#fff', paddingHorizontal: 12 },
   listContainer: {
     flex: 1,
     backgroundColor: '#fff',
@@ -200,25 +199,38 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     overflow: 'hidden',
   },
+  sectionHeaderContainer: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderColor: '#cac8c88a',
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    borderTopWidth: 1,
+  },
   sectionHeader: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    backgroundColor: '#f0f4f8',
+    color: '#2c2d2dff',
+   
   },
   item: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 14,
+    height: 75,
     paddingHorizontal: 16,
   },
-  itemEven: { backgroundColor: '#fff' },
-  itemOdd: { backgroundColor: '#f8fcff' },
+  itemEven: { backgroundColor: '#eaf5fca5' },
+  itemOdd: { backgroundColor: '#fff' },
   itemLeft: { flexDirection: 'row', alignItems: 'center' },
-  flag: { width: 32, height: 32, borderRadius: 16, marginRight: 12 },
+  flag: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    marginRight: 12,
+    borderColor: '#fff',
+    borderWidth: 1,
+  },
   name: { fontSize: 16, color: '#333' },
   alphaSegmentBar: {
     position: 'absolute',
@@ -230,10 +242,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 30,
     backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 3,
   },
   segment: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   firstSegment: { borderTopLeftRadius: 30, borderBottomLeftRadius: 30 },

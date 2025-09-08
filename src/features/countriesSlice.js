@@ -39,6 +39,14 @@ const countriesSlice = createSlice({
   reducers: {
     filterBySegment: (state, action) => {
   const letters = segmentMap[action.payload];
+
+  if (!letters) {
+    // No segment selected → reset to all countries
+    state.filteredCountries = state.countries;
+    state.groupedCountries = groupByFirstLetter(state.countries);
+    state.search = '';
+    return;
+  }
   const filtered = state.countries.filter(c =>
     letters.includes(c.name[0].toUpperCase())
   );
