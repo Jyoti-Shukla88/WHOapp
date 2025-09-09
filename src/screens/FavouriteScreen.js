@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,15 +8,23 @@ import {
   Image,
   ImageBackground,
   Share,
+  Modal,
+  Dimensions,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFavourite } from '../features/favouritesSlice';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+const { width } = Dimensions.get('window');
+
 export default function FavouriteScreen({ navigation }) {
   const { items: favourites } = useSelector(state => state.favourites);
   const dispatch = useDispatch();
 
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCode, setSelectedCode] = useState(null);
+
+  // Share functionality
   const handleShare = async country => {
     try {
       await Share.share({
@@ -27,16 +35,31 @@ export default function FavouriteScreen({ navigation }) {
     }
   };
 
-  // Build flag URL from alpha-2 code (like "AL", "AR")
+  
   const getFlagUrl = alpha2 =>
     `https://flagcdn.com/w40/${alpha2.toLowerCase()}.png`;
+
+  
+  const confirmDelete = code => {
+    setSelectedCode(code);
+    setShowModal(true);
+  };
+
+  
+  const handleDelete = () => {
+    if (selectedCode) {
+      dispatch(removeFavourite(selectedCode));
+      setSelectedCode(null);
+    }
+    setShowModal(false);
+  };
 
   return (
     <ImageBackground
       source={require('../../assets/background.gif')}
       style={styles.bg}
     >
-      {/* Top bar */}
+     
       <View style={styles.topBar}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -51,7 +74,7 @@ export default function FavouriteScreen({ navigation }) {
         <Text style={styles.titleText}>Favourites</Text>
       </View>
 
-      {/* Empty state */}
+     
       {!favourites.length ? (
         <View style={styles.center}>
           <Text style={styles.emptyText}>No favourites yet</Text>
@@ -59,7 +82,7 @@ export default function FavouriteScreen({ navigation }) {
       ) : (
         <FlatList
           data={favourites}
-          keyExtractor={item => item.code} 
+          keyExtractor={item => item.code}
           contentContainerStyle={{ padding: 20, paddingTop: 10 }}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -70,7 +93,7 @@ export default function FavouriteScreen({ navigation }) {
                 })
               }
             >
-              {/* Flag + Name + Region */}
+              
               <View style={styles.info}>
                 {item.flag ? (
                   <Image
@@ -79,7 +102,7 @@ export default function FavouriteScreen({ navigation }) {
                     resizeMode="cover"
                   />
                 ) : (
-                  <View style={[styles.flag, { backgroundColor: '#ccc' }]} /> 
+                  <View style={[styles.flag, { backgroundColor: '#ccc' }]} />
                 )}
                 <View style={{ marginLeft: 12 }}>
                   <Text style={styles.cardTitle}>{item.name}</Text>
@@ -87,7 +110,7 @@ export default function FavouriteScreen({ navigation }) {
                 </View>
               </View>
 
-              {/* Action buttons */}
+             
               <View style={styles.actions}>
                 <TouchableOpacity
                   onPress={() => handleShare(item)}
@@ -97,7 +120,7 @@ export default function FavouriteScreen({ navigation }) {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => dispatch(removeFavourite(item.code))}
+                  onPress={() => confirmDelete(item.code)}
                   style={styles.iconBtn}
                 >
                   <Icon name="trash-outline" size={22} color="red" />
@@ -107,6 +130,41 @@ export default function FavouriteScreen({ navigation }) {
           )}
         />
       )}
+
+      
+      <Modal visible={showModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalText}>
+              Are you sure you want to remove?
+            </Text>
+
+      
+            <Icon
+              name="trash-outline"
+              size={70}
+              color="#0077b6"
+              style={{ marginVertical: 12 }}
+            />
+
+           
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.okBtn]}
+                onPress={handleDelete}
+              >
+                <Text style={styles.okText}>OK</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.cancelBtn]}
+                onPress={() => setShowModal(false)}
+              >
+                <Text style={styles.cancelText}>CANCEL</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 }
@@ -132,13 +190,16 @@ const styles = StyleSheet.create({
   },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   emptyText: { fontSize: 18, color: '#fff', fontWeight: '600' },
+
   card: {
+    width: width - 40, 
+    alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 14,
-  paddingHorizontal: 20,
-    borderRadius: 50,
+    paddingHorizontal: 20,
+    borderRadius: 16,
     backgroundColor: 'rgba(255,255,255,1)',
     marginBottom: 12,
   },
@@ -156,4 +217,42 @@ const styles = StyleSheet.create({
   cardRegion: { fontSize: 14, color: '#1d1d1dff' },
   actions: { flexDirection: 'row', alignItems: 'center' },
   iconBtn: { marginLeft: 12 },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    width: width - 40,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    overflow: 'hidden', 
+  },
+  modalText: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
+  modalActions: {
+    flexDirection: 'row',
+    marginTop: 15,
+    width: '100%',
+    borderTopWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  modalBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  okBtn: {
+    backgroundColor: '#0077b6',
+    
+  },
+  cancelBtn: {
+    backgroundColor: '#f0f0f0',
+  },
+  okText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  cancelText: { color: '#000', fontSize: 16, fontWeight: '600' },
 });
